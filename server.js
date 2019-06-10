@@ -22,18 +22,41 @@ const config = {
 firebase.initializeApp(config);
 
 router.get('/players', function (req, res) {
-    var playerReference = firebase.database().ref("/players/").orderByChild("stats/kills");
+    var playerReference = firebase.database()
+        .ref("/players/").on('value', function(snapshot){
+            res.send(snapshotToArray(snapshot))
+        });
+});
 
-    playerReference.on("value", function (snapshot) {
-        res.send(snapshot.toJSON());
-        playerReference.off("value");
-    },
+
+router.get('/teams', function (req, res) {
+    var teamReference = firebase.database().ref("/teams/");
+
+    teamReference.on("value", function (snapshot) {
+            var snapshot = snapshot.toJSON();
+            res.send(snapshot)
+            teamReference.off("value");
+        },
         function (errorObj) {
-            console.log("Reading players failed! " + errorObj.code);
-            res.send("Reading players failed! " + errorObj.code);
+            console.log("Reading teams failed! " + errorObj.code);
+            res.send("Reading teams failed! " + errorObj.code);
         })
 });
 
+
+
+function snapshotToArray(snapshot) {
+    var returnArr = [];
+
+    snapshot.forEach(function(childSnapshot) {
+        var item = childSnapshot.val();
+        item.key = childSnapshot.key;
+
+        returnArr.push(item);
+    });
+
+    return returnArr;
+};
 
 
 // append /api for our http requests
