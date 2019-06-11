@@ -23,11 +23,11 @@ firebase.initializeApp(config);
 
 router.get('/players', function (req, res) {
     var playerReference = firebase.database()
-        .ref("/players/").on('value', function(snapshot){
+        .ref("/players/").orderByChild("stats/kills")
+        .on('value', function(snapshot){
             res.send(snapshotToArray(snapshot))
         });
 });
-
 
 router.get('/teams', function (req, res) {
     var teamReference = firebase.database().ref("/teams/");
@@ -42,8 +42,6 @@ router.get('/teams', function (req, res) {
             res.send("Reading teams failed! " + errorObj.code);
         })
 });
-
-
 
 function snapshotToArray(snapshot) {
     var returnArr = [];
