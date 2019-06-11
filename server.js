@@ -22,28 +22,28 @@ const config = {
 firebase.initializeApp(config);
 
 router.get('/players', function (req, res) {
-    var playerReference = firebase.database()
-        .ref("/players/").on('value', function(snapshot){
+    firebase.database()
+        .ref("/players/")
+        .on('value', function(snapshot){
             res.send(snapshotToArray(snapshot))
+        },
+        function (errorObj) {
+            console.log("Reading teams failed! " + errorObj.code);
+            res.send("Reading teams failed! " + errorObj.code);
         });
 });
 
-
 router.get('/teams', function (req, res) {
-    var teamReference = firebase.database().ref("/teams/");
-
-    teamReference.on("value", function (snapshot) {
-            var snapshot = snapshot.toJSON();
-            res.send(snapshot)
-            teamReference.off("value");
+    firebase.database()
+        .ref("/teams/")
+        .on('value', function(snapshot){
+            res.send(snapshotToArray(snapshot))
         },
         function (errorObj) {
             console.log("Reading teams failed! " + errorObj.code);
             res.send("Reading teams failed! " + errorObj.code);
         })
 });
-
-
 
 function snapshotToArray(snapshot) {
     var returnArr = [];
