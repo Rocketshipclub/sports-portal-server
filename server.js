@@ -21,6 +21,10 @@ const config = {
 };
 firebase.initializeApp(config);
 
+router.get('/', function(req, res) {
+    res.send("Hello main page");
+});
+
 router.get('/players', function (req, res) {
     firebase.database()
         .ref("/players/").orderByChild('stats/kills')
@@ -45,9 +49,12 @@ router.get('/teams', function (req, res) {
         })
 });
 
-router.get('/players/:id', function(req, res) {
-    firebase.database().ref("/players/" + req.params.name)
+router.get('/players/:name', function(req, res) {
+    var playerName = req.params.name;
+
+    firebase.database().ref("/players/" + playerName)
         .on("value", function (snapshot) {
+            console.log(snapshot.val());
             res.send(snapshot.val());
     })
 })
