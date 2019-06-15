@@ -23,7 +23,7 @@ firebase.initializeApp(config);
 
 router.get('/players', function (req, res) {
     firebase.database()
-        .ref("/players/")
+        .ref("/players/").orderByChild('stats/kills')
         .on('value', function(snapshot){
             res.send(snapshotToArray(snapshot))
         },
@@ -35,7 +35,7 @@ router.get('/players', function (req, res) {
 
 router.get('/teams', function (req, res) {
     firebase.database()
-        .ref("/teams/")
+        .ref("/teams/").orderByChild('stats/wins')
         .on('value', function(snapshot){
             res.send(snapshotToArray(snapshot))
         },
@@ -44,6 +44,13 @@ router.get('/teams', function (req, res) {
             res.send("Reading teams failed! " + errorObj.code);
         })
 });
+
+router.get('/players/:id', function(req, res) {
+    firebase.database().ref("/players/" + req.params.name)
+        .on("value", function (snapshot) {
+            res.send(snapshot.val());
+    })
+})
 
 function snapshotToArray(snapshot) {
     var returnArr = [];
