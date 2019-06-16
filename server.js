@@ -50,13 +50,35 @@ router.get('/teams', function (req, res) {
 });
 
 router.get('/players/:name', function(req, res) {
-    var playerName = req.params.name;
-
-    firebase.database().ref("/players/" + playerName)
+    firebase.database().ref("/players/" + req.params.name)
         .on("value", function (snapshot) {
             console.log(snapshot.val());
             res.send(snapshot.val());
     })
+})
+
+router.get('/teams/:name/', function(req, res){
+    firebase.database().ref("/teams/" + req.params.name)
+        .on("value", function(snapshot){
+            console.log(snapshot.val());
+            res.send(snapshot.val());
+        })
+})
+
+router.get('/teams/:name/players', async function(req, res){
+    var players = [];
+    var playerRef = firebase.database().ref('/players/');
+    var requestedTeam = req.params.name;
+
+    var p = playerRef.orderByChild('team').equalTo(requestedTeam);
+    var snap = await p.once('value');
+    snap.forEach(function(childSnapshot){
+        if(childSnapshot.val().team === requestedTeam){
+            players.push(childSnapshot.val());
+        }
+    })
+
+    await res.send(players);
 })
 
 function snapshotToArray(snapshot) {
