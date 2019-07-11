@@ -7,6 +7,8 @@ const API_PORT = 3001;
 const app = express();
 const router = express.Router();
 
+// append /api for our http requests
+app.use('/api', router);
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -20,6 +22,12 @@ const config = {
     messagingSenderId: "950592985779"
 };
 firebase.initializeApp(config);
+
+router.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+  });
 
 router.get('/', function(req, res) {
     res.send("Hello main page");
@@ -52,7 +60,6 @@ router.get('/teams', function (req, res) {
 router.get('/players/:name', function(req, res) {
     firebase.database().ref("/players/" + req.params.name)
         .on("value", function (snapshot) {
-            console.log(snapshot.val());
             res.send(snapshot.val());
     })
 })
@@ -60,7 +67,6 @@ router.get('/players/:name', function(req, res) {
 router.get('/teams/:name/', function(req, res){
     firebase.database().ref("/teams/" + req.params.name)
         .on("value", function(snapshot){
-            console.log(snapshot.val());
             res.send(snapshot.val());
         })
 })
@@ -93,10 +99,6 @@ function snapshotToArray(snapshot) {
 
     return returnArr;
 };
-
-
-// append /api for our http requests
-app.use('/api', router);
 
 // launch our backend into a port
 app.listen(API_PORT, () => console.log(`LISTENING ON PORT ${API_PORT}`));
