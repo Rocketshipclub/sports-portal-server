@@ -37,7 +37,9 @@ router.get('/players', function (req, res) {
     firebase.database()
         .ref("/players/").orderByChild('stats/kills')
         .on('value', function(snapshot){
-            res.send(snapshotToArray(snapshot))
+            var players = snapshotToArray(snapshot);
+            calculateKDA(players);
+            res.send(players)
         },
         function (errorObj) {
             console.log("Reading teams failed! " + errorObj.code);
@@ -83,7 +85,6 @@ router.get('/teams/:name/players', async function(req, res){
             players.push(childSnapshot.val());
         }
     })
-
     await res.send(players);
 })
 
@@ -99,6 +100,12 @@ function snapshotToArray(snapshot) {
 
     return returnArr;
 };
+
+function calculateKDA(players){
+    for(var player of players){
+        player.kda = parseFloat((player.stats.kills + player.stats.assists) / player.stats.deaths).toFixed(2);
+    }
+}
 
 // launch our backend into a port
 app.listen(API_PORT, () => console.log(`LISTENING ON PORT ${API_PORT}`));
