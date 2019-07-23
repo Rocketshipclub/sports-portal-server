@@ -6,12 +6,14 @@ const bodyParser = require('body-parser');
 const API_PORT = process.env.PORT || 3001;
 const app = express();
 const router = express.Router();
+const path = require('path')
 
 // append /api for our http requests
 app.use('/api', router);
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'client/build')))
 
 const config = {
     apiKey: "AIzaSyBw_VWUrlRHsOugAs-kACcaFzTwdWmvOr0",
@@ -87,6 +89,10 @@ router.get('/teams/:name/players', async function(req, res){
     })
     await res.send(players);
 })
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname + '/client/build/index.html'))
+  })
 
 function snapshotToArray(snapshot) {
     var returnArr = [];
